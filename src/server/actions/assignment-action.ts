@@ -2,8 +2,8 @@
 
 import prisma from "@/lib/db/prisma";
 import { verifySession } from "@/lib/security/tokens";
-import { Role } from "@prisma/client";
 import { AnswerRecord } from "@/domain/assessment/report-builder";
+import { Role } from "@/generated/prisma";
 
 type Mode = "single" | "full";
 

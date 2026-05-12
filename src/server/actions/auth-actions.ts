@@ -4,7 +4,7 @@ import prisma from "@/lib/db/prisma";
 import { generateOtp, hashOtp } from "@/lib/security/otp";
 import { createSession } from "@/lib/security/tokens";
 import { sendOTPEmail } from "@/lib/email";
-import { Role } from "@prisma/client";
+import { Role } from "@/generated/prisma";
 
 
 export async function registerUserAction(formData: FormData) {
