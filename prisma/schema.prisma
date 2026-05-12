@@ -1,0 +1,176 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                 String              @id @default(cuid())
+  name               String
+  email              String              @unique
+  role               Role
+  verifiedAt         DateTime?           @map("verified_at")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+
+  otpVerifications   OtpVerification[]
+  assessmentJourneys AssessmentJourney[]
+
+  @@map("users")
+}
+
+model OtpVerification {
+  id           String    @id @default(uuid())
+  userId       String    @map("user_id")
+  otpHash      String    @map("otp_hash")
+  expiresAt    DateTime  @map("expires_at")
+  verifiedAt   DateTime? @map("verified_at")
+  attemptCount Int       @default(0) @map("attempt_count")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("otp_verifications")
+}
+
+model AssessmentJourney {
+  id            String        @id @default(uuid())
+  userId        String        @map("user_id")
+  role          Role
+  mode          AssessmentMode @default(single)
+  status        JourneyStatus @default(IN_PROGRESS)
+
+  startedAt     DateTime      @default(now()) @map("started_at")
+  completedAt   DateTime?     @map("completed_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phaseAttempts PhaseAttempt[]
+  overallReport OverallReport?
+
+  @@unique([userId, role], name: "user_role")
+  @@index([userId, role, status])
+  @@map("assessment_journeys")
+}
+
+model PhaseAttempt {
+  id                String            @id @default(uuid())
+  journeyId         String            @map("journey_id")
+  phaseKey          String            @map("phase_key")
+  status            PhaseStatus       @default(NOT_STARTED)
+
+  responsesJson     Json?             @map("responses_json")
+  scoresJson        Json?             @map("scores_json")
+  dominantTendency  String?           @map("dominant_tendency")
+  secondaryTendency String?           @map("secondary_tendency")
+  dominanceRatio    Float?            @map("dominance_ratio")
+  percentage        Int?
+  band              String?
+  mode              String?
+  patternVectorJson Json?             @map("pattern_vector_json")
+  reportJson        Json?             @map("report_json")
+
+  submittedAt       DateTime?         @map("submitted_at")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  journey           AssessmentJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+
+  @@unique([journeyId, phaseKey])
+  @@index([journeyId, status])
+  @@map("phase_attempts")
+}
+
+model OverallReport {
+  id                  String            @id @default(uuid())
+  journeyId           String            @unique @map("journey_id")
+
+  scoresJson          Json              @map("scores_json")
+  dominantTendency    String?           @map("dominant_tendency")
+  secondaryTendency   String?           @map("secondary_tendency")
+  dominanceRatio      Float             @map("dominance_ratio")
+  percentage          Int
+  band                String
+  mode                String
+  patternVectorJson   Json              @map("pattern_vector_json")
+  alignmentHealthJson Json              @map("alignment_health_json")
+  phaseSummaryJson    Json              @map("phase_summary_json")
+  reportJson          Json              @map("report_json")
+  templateVersion     String            @default("v1") @map("template_version")
+
+  generatedAt         DateTime          @default(now()) @map("generated_at")
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt           DateTime          @updatedAt @map("updated_at")
+
+  journey             AssessmentJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  shares              ReportShare[]
+
+  @@map("overall_reports")
+}
+
+model ReportShare {
+  id             String        @id @default(uuid())
+  reportId       String        @map("report_id")
+  shareTokenHash String        @map("share_token_hash")
+  isActive       Boolean       @default(true) @map("is_active")
+  expiresAt      DateTime?     @map("expires_at")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  revokedAt      DateTime?     @map("revoked_at")
+
+  report         OverallReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@map("report_shares")
+}
+
+model Question {
+  id        String           @id @default(uuid())
+  role      Role
+  phaseKey  String           @map("phase_key")
+  situation String
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+
+  options   QuestionOption[]
+
+  @@index([role, phaseKey])
+  @@map("questions")
+}
+
+model QuestionOption {
+  id         String   @id @default(uuid())
+  questionId String   @map("question_id")
+  optionKey  String   @map("option_key")
+  text       String
+  tendency   String
+
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, optionKey])
+  @@map("question_options")
+}
+
+enum Role {
+  candidate
+  recruiter
+  employer
+}
+
+enum AssessmentMode {
+  single
+  full
+}
+
+enum JourneyStatus {
+  IN_PROGRESS
+  COMPLETED
+  REPORT_GENERATED
+}
+
+enum PhaseStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}

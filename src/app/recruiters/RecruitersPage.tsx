@@ -1,0 +1,60 @@
+import { HeroTextContainerSection } from "@/components/common/HeroTextContainerSection";
+import React from "react";
+import {
+  HeroData,
+  signalFlowData,
+  bannerSectionData,
+  insightComparisonData,
+  outcomeHighlightData,
+  workflowAlignmentSectionData,
+  recruiterFaqs
+} from "@/data/RecruitersPageData";
+import SignalFlowSection from "@/components/common/SignalFlowSection";
+import BannerSection from "@/components/common/BannerSection";
+import InsightComparisonSection from "@/components/common/InsightComparisonSection ";
+import OutcomeHighlightSection from "@/components/common/OutcomeHighlightSection";
+import WorkflowAlignmentSection from "@/components/common/WorkflowAlignmentSection";
+import FAQSection from "@/components/common/FAQSection";
+
+export const RecruitersPage = () => {
+  return (
+    <>
+      <section className="relative ">
+        <div className="">
+            <section className="relative flex items-center justify-center py-[5%] px-[5%] bg-transparent">
+              <div className="">
+                <HeroTextContainerSection data={HeroData} />
+              </div>
+              
+            </section>
+          </div>
+          <div className="">
+                      <section className="relative py-[5%] px-[5%] md:px-[7%] bg-transparent">
+                       <SignalFlowSection data={signalFlowData} />
+                      </section>
+                    </div>
+                    <div className="">
+                                 <section>
+                                   <BannerSection data={bannerSectionData} />
+                                 </section>
+                               </div>
+                       <div className="">
+                                 <section className="relative py-[5%] px-[5%]">
+                                   <InsightComparisonSection data={insightComparisonData} />
+                                 </section>
+                               </div>
+                                <div className="">
+                                 <section className="relative py-[5%] px-[5%]">
+                                   <WorkflowAlignmentSection data={workflowAlignmentSectionData} />
+                                 </section>
+                               </div>
+                               <div className="relative py-[5%] px-[5%]">
+                                <OutcomeHighlightSection data={outcomeHighlightData}/>
+                               </div>
+                               <div className="px-[5%]  py-[5%]">
+                               <FAQSection data={recruiterFaqs}/>
+                                       </div>
+  </section>
+    </>
+  );
+};
