@@ -29,7 +29,7 @@ export async function sendOTPEmail(email: string, otp: string): Promise<void> {
   };
 
   await transporter.verify();
-console.log("SMTP Connected");
+// console.log("SMTP Connected");
 
   await transporter.sendMail(mailOptions);
 }

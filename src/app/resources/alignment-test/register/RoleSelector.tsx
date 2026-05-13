@@ -83,13 +83,11 @@ export function RoleSelector() {
 
       if (
         mode === "single" &&
-        (
-  status.completedPhases as string[]
-)?.includes(phase) &&
+        (status.completedPhases as string[])?.includes(phase) &&
         phaseReports[phase]
       ) {
         router.push(
-          `/resources/alignment-test/${role}/report?mode=single&phase=${phase}`
+          `/resources/alignment-test/${role}/report?mode=single&phase=${phase}`,
         );
         return;
       }
@@ -99,8 +97,8 @@ export function RoleSelector() {
         return;
       }
     }
-
-    router.push(`/resources/alignment-test/${role}?mode=${mode}&phase=${phase}`);
+router.push(`/resources/alignment-test/${selectedRole}?mode=${mode}&phase=${phase}`);
+    
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -185,8 +183,8 @@ export function RoleSelector() {
     }
 
     if (res.success && selectedRole) {
-  await routeAfterLogin(selectedRole);
-}
+      await routeAfterLogin(selectedRole);
+    }
 
     setLoading(false);
   };

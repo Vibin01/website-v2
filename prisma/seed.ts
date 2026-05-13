@@ -24,7 +24,7 @@ async function main() {
     });
   }
 
-  console.log(`Successfully seeded ${candidateQuestions.length} candidate questions.`);
+  // console.log(`Successfully seeded ${candidateQuestions.length} candidate questions.`);
 }
 
 main()

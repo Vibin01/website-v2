@@ -88,16 +88,8 @@ export default function AssessmentTestClient({
   const [error, setError] = useState("");
 
   const [journeyId, setJourneyId] = useState<string | null>(null);
-const [
-  completedPhases,
-  setCompletedPhases,
-] = useState<string[]>([]);
- const [
-  phaseReports,
-  setPhaseReports,
-] = useState<
-  Record<string, any>
->({});
+  const [completedPhases, setCompletedPhases] = useState<string[]>([]);
+  const [phaseReports, setPhaseReports] = useState<Record<string, any>>({});
 
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -113,16 +105,15 @@ const [
       if (status.success) {
         const reports = (status.phaseReports || {}) as Record<string, any>;
 
-        setCompletedPhases(
-  (status.completedPhases || []) as string[]
-);
+        setCompletedPhases((status.completedPhases || []) as string[]);
         setPhaseReports(reports);
 
-        if (mode === "single" && (
-  status.completedPhases as string[]
-)?.includes(phase)) {
+        if (
+          mode === "single" &&
+          (status.completedPhases as string[])?.includes(phase)
+        ) {
           router.replace(
-            `/resources/alignment-test/${role}/report?mode=single&phase=${phase}`
+            `/resources/alignment-test/${role}/report?mode=single&phase=${phase}`,
           );
           return;
         }
@@ -160,6 +151,25 @@ const [
     return phases;
   }, [mode, completedPhases]);
 
+if (
+  mode === "full" &&
+  availablePhases.length === 0
+) {
+  if (phaseReports && Object.keys(phaseReports).length >= 5) {
+    router.replace(
+      `/resources/alignment-test/${role}/report?mode=full`
+    );
+
+    return null;
+  }
+
+  router.replace(
+    `/resources/alignment-test/${role}?mode=full`
+  );
+
+  return null;
+}
+
   const startPhaseIndex = useMemo(() => {
     if (mode === "full") return 0;
 
@@ -194,7 +204,9 @@ const [
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-sm">
         <p className="text-xl font-bold">No remaining phases found.</p>
         <button
-          onClick={() => router.push(`/resources/alignment-test/${role}/report?mode=full`)}
+          onClick={() =>
+            router.push(`/resources/alignment-test/${role}/report?mode=full`)
+          }
           className="rounded-sm bg-primary px-md py-xs text-white"
         >
           View Overall Report
@@ -256,14 +268,14 @@ const [
       }
 
       router.push(
-        `/resources/alignment-test/${role}/report?mode=single&phase=${currentPhase.key}`
+        `/resources/alignment-test/${role}/report?mode=single&phase=${currentPhase.key}`,
       );
 
       return;
     }
 
     const oldAnswers = Object.values(phaseReports).flatMap(
-      (report: any) => report?.answers || []
+      (report: any) => report?.answers || [],
     ) as AnswerRecord[];
 
     const finalAnswers = mergeUniqueAnswers([...oldAnswers, ...updatedAnswers]);
@@ -309,7 +321,10 @@ const [
                 const completed = index < questionIndex;
 
                 return (
-                  <div key={index} className="flex flex-col items-center gap-xs">
+                  <div
+                    key={index}
+                    className="flex flex-col items-center gap-xs"
+                  >
                     <div
                       className={`flex size-iconsize-lg items-center justify-center rounded-full border ${
                         active || completed
@@ -343,7 +358,10 @@ const [
                 const completed = index < phaseIndex;
 
                 return (
-                  <div key={item.key} className="flex flex-col items-center gap-xs">
+                  <div
+                    key={item.key}
+                    className="flex flex-col items-center gap-xs"
+                  >
                     <div
                       className={`flex size-iconsize-lg items-center justify-center rounded-full border ${
                         active || completed
@@ -401,7 +419,9 @@ const [
             </div>
 
             {error && (
-              <p className="mt-sm text-lg font-semibold text-red-500">{error}</p>
+              <p className="mt-sm text-lg font-semibold text-red-500">
+                {error}
+              </p>
             )}
 
             <div className="mt-md rounded-sm border border-[#DEEDFF] bg-white p-sm shadow-[0px_4px_40px_5px_#0668E11A]">
@@ -418,33 +438,35 @@ const [
               <p className="mt-md text-xl font-medium">What do you do?</p>
 
               <div className="mt-md space-y-sm">
-                {Object.entries(currentQuestion.options).map(([key, option]) => {
-                  const active = selectedOption === key;
+                {Object.entries(currentQuestion.options).map(
+                  ([key, option]) => {
+                    const active = selectedOption === key;
 
-                  return (
-                    <label
-                      key={key}
-                      className={`flex w-full cursor-pointer items-center gap-sm rounded-sm border px-4 py-3 text-left text-xl font-medium transition ${
-                        active
-                          ? "border-[#B2D0F6] text-[#2C2C2C]"
-                          : "border-transparent text-[#9F9F9F]"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="assessment-option"
-                        value={key}
-                        checked={active}
-                        onChange={() => setSelectedOption(key)}
-                        className="size-sm shrink-0 accent-[#0668E1]"
-                      />
+                    return (
+                      <label
+                        key={key}
+                        className={`flex w-full cursor-pointer items-center gap-sm rounded-sm border px-4 py-3 text-left text-xl font-medium transition ${
+                          active
+                            ? "border-[#B2D0F6] text-[#2C2C2C]"
+                            : "border-transparent text-[#9F9F9F]"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="assessment-option"
+                          value={key}
+                          checked={active}
+                          onChange={() => setSelectedOption(key)}
+                          className="size-sm shrink-0 accent-[#0668E1]"
+                        />
 
-                      <span>
-                        {key}. {option.text}
-                      </span>
-                    </label>
-                  );
-                })}
+                        <span>
+                          {key}. {option.text}
+                        </span>
+                      </label>
+                    );
+                  },
+                )}
               </div>
             </div>
 
